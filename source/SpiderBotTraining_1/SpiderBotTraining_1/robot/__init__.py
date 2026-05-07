@@ -1,0 +1,1 @@
+from .SpiderBotTraining_1 import MY_ROBOT_CFG
