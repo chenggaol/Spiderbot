@@ -24,13 +24,13 @@ class SpiderbotSceneCfg(InteractiveSceneCfg):
 
 @configclass
 class Spiderbottraining1EnvCfg(DirectRLEnvCfg):
-    decimation       = 2
+    decimation = 2
     episode_length_s = 15.0
 
     # 3 gravity + 3 ang_vel + 8 joint_pos + 8 prev_actions = 22
-    action_space      = 8
+    action_space = 8
     observation_space = 22
-    state_space       = 0
+    state_space  = 0
 
     sim: SimulationCfg = SimulationCfg(
         dt=1/120,
@@ -49,11 +49,11 @@ class Spiderbottraining1EnvCfg(DirectRLEnvCfg):
     joint_names  = ["F_R_1", "F_R_2", "F_L_1", "F_L_2", "B_R_1", "B_R_2", "B_L_1", "B_L_2"]
     action_scale = 1.0
 
-    rew_forward      =  3.0
-    rew_alive        =  0.0
-    rew_orientation  = -1.0
-    rew_not_moving   = -2.0
+    rew_forward =  3.0
+    rew_alive  =  0.0
+    rew_orientation = -1.0
+    rew_not_moving = -2.0
     rew_joint_motion =  0.3
 
     max_torque = 5
-    max_tilt   = 1.047  # 60 degrees
+    max_tilt = 1.047  # 60 degrees

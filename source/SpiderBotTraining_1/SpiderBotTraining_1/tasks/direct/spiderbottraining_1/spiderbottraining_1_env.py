@@ -53,10 +53,10 @@ class Spiderbottraining1Env(DirectRLEnv):
         self.robot.set_joint_effort_target(targets, joint_ids=self._joint_dof_idx)
 
     def _get_observations(self) -> dict:
-        gravity   = self.robot.data.projected_gravity_b
-        ang_vel   = self.robot.data.root_ang_vel_b
+        gravity = self.robot.data.projected_gravity_b
+        ang_vel = self.robot.data.root_ang_vel_b
         joint_pos = self.robot.data.joint_pos[:, self._joint_dof_idx]
-        prev_act  = self.prev_actions
+        prev_act = self.prev_actions
 
         obs = torch.cat((gravity, ang_vel, joint_pos, prev_act), dim=-1)
 
@@ -66,11 +66,11 @@ class Spiderbottraining1Env(DirectRLEnv):
                   "joint_pos:", torch.any(torch.isnan(joint_pos)))
             nan_envs = torch.any(torch.isnan(obs), dim=1).nonzero(as_tuple=False).flatten()
             self._reset_idx(nan_envs.tolist())
-            gravity   = self.robot.data.projected_gravity_b
-            ang_vel   = self.robot.data.root_ang_vel_b
+            gravity = self.robot.data.projected_gravity_b
+            ang_vel = self.robot.data.root_ang_vel_b
             joint_pos = self.robot.data.joint_pos[:, self._joint_dof_idx]
-            prev_act  = self.prev_actions
-            obs       = torch.cat((gravity, ang_vel, joint_pos, prev_act), dim=-1)
+            prev_act = self.prev_actions
+            obs = torch.cat((gravity, ang_vel, joint_pos, prev_act), dim=-1)
 
         obs = torch.nan_to_num(obs, nan=0.0, posinf=5.0, neginf=-5.0)
         obs = torch.clamp(obs, -5.0, 5.0)
@@ -92,11 +92,11 @@ class Spiderbottraining1Env(DirectRLEnv):
 
         # penalise tilt
         roll, pitch, _ = euler_xyz_from_quat(self.robot.data.root_quat_w)
-        tilt            = torch.sqrt(roll**2 + pitch**2)
+        tilt = torch.sqrt(roll**2 + pitch**2)
         rew_orientation = self.cfg.rew_orientation * tilt
 
         # reward joint motion to break zero equilibrium
-        joint_vel        = self.robot.data.joint_vel[:, self._joint_dof_idx]
+        joint_vel = self.robot.data.joint_vel[:, self._joint_dof_idx]
         rew_joint_motion = torch.sum(torch.abs(joint_vel), dim=1) * self.cfg.rew_joint_motion
 
         total = rew_forward + rew_not_moving + rew_orientation + rew_joint_motion
@@ -109,7 +109,7 @@ class Spiderbottraining1Env(DirectRLEnv):
         fallen = (torch.abs(roll) > self.cfg.max_tilt) | (torch.abs(pitch) > self.cfg.max_tilt)
 
         applied_torques = self.robot.data.applied_torque
-        max_torque      = torch.max(torch.abs(applied_torques), dim=1).values
+        max_torque = torch.max(torch.abs(applied_torques), dim=1).values
         torque_exceeded = max_torque > self.cfg.max_torque
 
         return fallen | torque_exceeded, time_out
