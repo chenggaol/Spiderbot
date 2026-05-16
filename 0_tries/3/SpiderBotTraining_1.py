@@ -36,8 +36,8 @@ MY_ROBOT_CFG = ArticulationCfg(
     actuators={
         "all_joints": ImplicitActuatorCfg(
             joint_names_expr=[".*"],
-            stiffness=50.0,   # zero — manual PD in _apply_action handles this
-            damping=2.0,     # zero — manual PD handles damping
+            stiffness=0.0,
+            damping=0.5,
         )
     },
 )

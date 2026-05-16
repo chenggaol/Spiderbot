@@ -198,7 +198,8 @@ def main(env_cfg: ManagerBasedRLEnvCfg | DirectRLEnvCfg | DirectMARLEnvCfg, agen
                 break
 
         # time delay for real-time evaluation
-        sleep_time = dt - (time.time() - start_time)
+        #sleep_time = dt - (time.time() - start_time)
+        sleep_time = 0.5
         if args_cli.real_time and sleep_time > 0:
             time.sleep(sleep_time)
 

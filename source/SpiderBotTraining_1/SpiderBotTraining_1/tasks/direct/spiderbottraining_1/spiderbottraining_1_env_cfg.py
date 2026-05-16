@@ -24,13 +24,16 @@ class SpiderbotSceneCfg(InteractiveSceneCfg):
 
 @configclass
 class Spiderbottraining1EnvCfg(DirectRLEnvCfg):
-    decimation = 2
-    episode_length_s = 15.0
+    decimation       = 4        # 30Hz policy
+    episode_length_s = 13.0     # ~400 policy steps per episode
 
-    # 3 gravity + 3 ang_vel + 8 joint_pos + 8 prev_actions = 22
-    action_space = 8
-    observation_space = 22
-    state_space  = 0
+    # observation space (all in cm/cm/s where applicable):
+    # p_body(3) + v_body(3) + orientation(3) + ang_vel(3) +
+    # joint_pos(8) + joint_vel(8) + contact_normal(4) + contact_friction(4) + prev_actions(8)
+    # = 44
+    action_space      = 8
+    observation_space = 44
+    state_space       = 0
 
     sim: SimulationCfg = SimulationCfg(
         dt=1/120,
@@ -47,13 +50,28 @@ class Spiderbottraining1EnvCfg(DirectRLEnvCfg):
     )
 
     joint_names  = ["F_R_1", "F_R_2", "F_L_1", "F_L_2", "B_R_1", "B_R_2", "B_L_1", "B_L_2"]
-    action_scale = 1.0
+    action_scale = 1.5   # radians — PD controller converts to torques
 
-    rew_forward =  3.0
-    rew_alive  =  0.0
-    rew_orientation = -1.0
-    rew_not_moving = -2.0
-    rew_joint_motion =  0.3
+    # PD controller gains
+    kp = 1.0
+    kd = 0.1
+    max_torque = 5.0  # Nm clamp on PD output
 
-    max_torque = 5
-    max_tilt = 1.047  # 60 degrees
+    # reward weights from paper (equation 13) — scaled for cm units
+    # r = λvx*vx_cm + λΔt*(Ts/Tf) - λz*(pz_cm - pz_dh_cm)² - λu*Σ(u²)
+    lambda_vy  =  3.0    # forward velocity reward (vx in cm/s)
+    lambda_dt  =  1.0    # alive reward weight
+    lambda_z   =  0.005  # height penalty weight (reduced since pz in cm → larger values)
+    lambda_u   =  0.01   # torque penalty weight (reduced — torques already in Nm)
+
+    # paper timing values
+    Ts = 0.02    # sampling time
+    Tf = 10.0    # episode time for alive reward scaling
+
+    # desired height in cm — robot stands at ~3cm
+    pz_desired_cm = 1.25   # cm
+
+    # termination — tilt was the problem so start very loose
+    max_tilt   = 2.5      # ~143 degrees — essentially never terminates on tilt early in training
+    max_height = 0.3
+    min_height = 0.005   # effectively disabled — robot origin on bottom face near 0
