@@ -10,9 +10,6 @@ This project is intended to be used as a development starting point for:
 - training with Isaac Sim / Omniverse,
 - embedding custom robot models and reward logic.
 
-## Model Visuals
-
-Use this section to add visual references for your robot design.
 
 ### SolidWorks Model
 
@@ -28,9 +25,9 @@ Use this section to add visual references for your robot design.
 
 > Replace `path/to/...` with the actual image path or URL for your repository.
 
-## Environment Configuration
+## Environment and robot Configuration
 
-The environment configuration is defined in `source/SpiderBotTraining_1/SpiderBotTraining_1/tasks/direct/spiderbottraining_1/spiderbottraining_1_env_cfg.py` and the environment implementation is in `source/SpiderBotTraining_1/SpiderBotTraining_1/tasks/direct/spiderbottraining_1/spiderbottraining_1_env.py`.
+The environment configuration is defined in `source/SpiderBotTraining_1/SpiderBotTraining_1/tasks/direct/spiderbottraining_1/spiderbottraining_1_env_cfg.py`the environment implementation is in `source/SpiderBotTraining_1/SpiderBotTraining_1/tasks/direct/spiderbottraining_1/spiderbottraining_1_env.py` and robot configuration is in `source/SpiderBotTraining_1/SpiderBotTraining_1/robot/SpiderBotTraining_1.py`
 
 ### Observation Space
 
@@ -72,62 +69,6 @@ reward += task_completion_bonus if done_successfully else 0.0
 
 Update this section with the exact reward terms used in your environment implementation.
 
-## Installation
-
-1. Install Isaac Lab by following the [Isaac Lab installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html).
-2. Clone or copy this repository outside of the Isaac Lab installation directory.
-3. Install the project in editable mode using a Python interpreter that has Isaac Lab available:
-
-```bash
-python -m pip install -e source/SpiderBotTraining_1
-```
-
-## Usage
-
-### List available tasks
-
-```bash
-python scripts/list_envs.py
-```
-
-### Run training
-
-```bash
-python scripts/<RL_LIBRARY>/train.py --task=<TASK_NAME>
-```
-
-### Run a zero-action sanity check
-
-```bash
-python scripts/zero_agent.py --task=<TASK_NAME>
-```
-
-### Run a random-action sanity check
-
-```bash
-python scripts/random_agent.py --task=<TASK_NAME>
-```
-
-## Set up IDE (Optional)
-
-This repository includes a VSCode task for configuring the Python environment.
-
-- Open the command palette: `Ctrl+Shift+P`
-- Run `Tasks: Run Task`
-- Select `setup_python_env`
-- Provide the path to your Isaac Sim installation when prompted
-
-If successful, a `.python.env` file will be created in `.vscode` containing the Python paths needed for source indexing.
-
-## Extension Setup (Optional)
-
-An example UI extension is available at `source/SpiderBotTraining_1/SpiderBotTraining_1/ui_extension_example.py`.
-
-To enable it in Isaac Lab:
-1. Add the absolute path to the repository `source` folder in Isaac Lab’s extension search paths.
-2. Refresh the extension manager.
-3. Enable the extension under the `Third Party` category.
-
 ## Results
 
 Use this section to summarize training metrics and experiment outcomes.
@@ -140,42 +81,9 @@ Use this section to summarize training metrics and experiment outcomes.
 
 Example result summary:
 
-- `Experiment 1`: reached stable walking behavior after 200k steps with an average episode reward of `X`
-- `Experiment 2`: reduced control effort by `Y%` while maintaining task success
-- `Experiment 3`: solved the navigation goal in `N` out of `M` evaluation episodes
+- `Experiment 1`: the robot learned to sway back and forth instead of actually walking after 200k steps, with an average episode reward of `X`
+- `Experiment 2`: reduced control effort by `Y%` while maintaining task stability
+- `Experiment 3`: observed motion pattern improvement in `N` out of `M` evaluation episodes
 
-## Code Formatting
+**Next steps:** tune agent parameters and improve the reward function to encourage walking behavior rather than oscillation.
 
-Install pre-commit and run formatting checks:
-
-```bash
-pip install pre-commit
-pre-commit run --all-files
-```
-
-## Troubleshooting
-
-### Pylance Missing Indexing of Extensions
-
-If VSCode does not index extension modules, add the repository path to `.vscode/settings.json` under `python.analysis.extraPaths`:
-
-```json
-{
-    "python.analysis.extraPaths": [
-        "<path-to-ext-repo>/source/SpiderBotTraining_1"
-    ]
-}
-```
-
-### Pylance Crash
-
-If Pylance crashes due to too many files being indexed, reduce the extra paths in `.vscode/settings.json` and exclude non-essential Omniverse packages.
-
-Example exclusions:
-
-```json
-"<path-to-isaac-sim>/extscache/omni.anim.*"
-"<path-to-isaac-sim>/extscache/omni.kit.*"
-"<path-to-isaac-sim>/extscache/omni.graph.*"
-"<path-to-isaac-sim>/extscache/omni.services.*"
-```
