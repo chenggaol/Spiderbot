@@ -13,15 +13,15 @@ This project is intended to be used as a development starting point for:
 
 ### SolidWorks Model
 
-![SolidWorks Model](path/to/solidworks_model_image.png)
+![SolidWorks Model](1_images/Image_1.png)
 
-*Caption: SolidWorks CAD model of the SpiderBot.*
+* SolidWorks CAD model of the SpiderBot.*
 
 ### URDF Model
 
-![URDF Model](path/to/urdf_model_image.png)
+![URDF Model](1_images/Image_2.png)
 
-*Caption: URDF visualization for the robot used in simulation.*
+* URDF visualization for the robot used in simulation.*
 
 > Replace `path/to/...` with the actual image path or URL for your repository.
 
