@@ -1,106 +1,155 @@
-# Template for Isaac Lab Projects
+# SpiderBot Training Environment
 
 ## Overview
 
-This project/repository serves as a template for building projects or extensions based on Isaac Lab.
-It allows you to develop in an isolated environment, outside of the core Isaac Lab repository.
+This repository contains the Isaac Lab / Isaac Sim project for the SpiderBot training environment. It includes the environment definition, task configuration, agents, and extension wrapper needed to run training and evaluation in Isaac Lab.
 
-**Key Features:**
+This project is intended to be used as a development starting point for:
+- reinforcement learning experiments,
+- robot environment configuration,
+- training with Isaac Sim / Omniverse,
+- embedding custom robot models and reward logic.
 
-- `Isolation` Work outside the core Isaac Lab repository, ensuring that your development efforts remain self-contained.
-- `Flexibility` This template is set up to allow your code to be run as an extension in Omniverse.
+## Model Visuals
 
-**Keywords:** extension, template, isaaclab
+Use this section to add visual references for your robot design.
+
+### SolidWorks Model
+
+![SolidWorks Model](path/to/solidworks_model_image.png)
+
+*Caption: SolidWorks CAD model of the SpiderBot.*
+
+### URDF Model
+
+![URDF Model](path/to/urdf_model_image.png)
+
+*Caption: URDF visualization for the robot used in simulation.*
+
+> Replace `path/to/...` with the actual image path or URL for your repository.
+
+## Environment Configuration
+
+The environment configuration is defined in `source/SpiderBotTraining_1/SpiderBotTraining_1/tasks/direct/spiderbottraining_1/spiderbottraining_1_env_cfg.py` and the environment implementation is in `source/SpiderBotTraining_1/SpiderBotTraining_1/tasks/direct/spiderbottraining_1/spiderbottraining_1_env.py`.
+
+### Observation Space
+
+The primary observation data includes:
+- robot state: joint positions, joint velocities, base pose, and base velocity
+- target or goal state: desired position or orientation for the task
+- contact and collision information (if enabled)
+- any custom sensor readings added for the SpiderBot task
+
+Use the exact observation vector details in the environment class to keep this description synchronized with the code.
+
+### Action Space
+
+The action space typically includes:
+- motor torque or velocity commands for the SpiderBot joints
+- actuator setpoints for the simulated motors
+- discrete or continuous control signals depending on the task configuration
+
+The environment is designed to accept action vectors from an RL policy and map them to robot control commands inside the Isaac Sim task implementation.
+
+### Reward Functions
+
+The reward function is responsible for guiding learning toward the desired robot behavior. Common components include:
+- `goal_reward`: reward for reaching or approaching the goal state
+- `effort_penalty`: penalty for high joint torques or excessive control inputs
+- `stability_penalty`: penalty for losing balance, flipping, or falling
+- `contact_reward`: bonus for making or maintaining desired contact patterns
+- `task_completion_bonus`: a larger reward when the task is completed successfully
+
+Example reward structure:
+
+```python
+reward = 0.0
+reward += goal_reward * goal_progress
+reward -= effort_penalty * control_effort
+reward -= stability_penalty * fall_detected
+reward += task_completion_bonus if done_successfully else 0.0
+```
+
+Update this section with the exact reward terms used in your environment implementation.
 
 ## Installation
 
-- Install Isaac Lab by following the [installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html).
-  We recommend using the conda or uv installation as it simplifies calling Python scripts from the terminal.
+1. Install Isaac Lab by following the [Isaac Lab installation guide](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html).
+2. Clone or copy this repository outside of the Isaac Lab installation directory.
+3. Install the project in editable mode using a Python interpreter that has Isaac Lab available:
 
-- Clone or copy this project/repository separately from the Isaac Lab installation (i.e. outside the `IsaacLab` directory):
+```bash
+python -m pip install -e source/SpiderBotTraining_1
+```
 
-- Using a python interpreter that has Isaac Lab installed, install the library in editable mode using:
+## Usage
 
-    ```bash
-    # use 'PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-    python -m pip install -e source/SpiderBotTraining_1
+### List available tasks
 
-- Verify that the extension is correctly installed by:
+```bash
+python scripts/list_envs.py
+```
 
-    - Listing the available tasks:
+### Run training
 
-        Note: It the task name changes, it may be necessary to update the search pattern `"Template-"`
-        (in the `scripts/list_envs.py` file) so that it can be listed.
+```bash
+python scripts/<RL_LIBRARY>/train.py --task=<TASK_NAME>
+```
 
-        ```bash
-        # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-        python scripts/list_envs.py
-        ```
+### Run a zero-action sanity check
 
-    - Running a task:
+```bash
+python scripts/zero_agent.py --task=<TASK_NAME>
+```
 
-        ```bash
-        # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-        python scripts/<RL_LIBRARY>/train.py --task=<TASK_NAME>
-        ```
+### Run a random-action sanity check
 
-    - Running a task with dummy agents:
+```bash
+python scripts/random_agent.py --task=<TASK_NAME>
+```
 
-        These include dummy agents that output zero or random agents. They are useful to ensure that the environments are configured correctly.
+## Set up IDE (Optional)
 
-        - Zero-action agent
+This repository includes a VSCode task for configuring the Python environment.
 
-            ```bash
-            # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-            python scripts/zero_agent.py --task=<TASK_NAME>
-            ```
-        - Random-action agent
+- Open the command palette: `Ctrl+Shift+P`
+- Run `Tasks: Run Task`
+- Select `setup_python_env`
+- Provide the path to your Isaac Sim installation when prompted
 
-            ```bash
-            # use 'FULL_PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
-            python scripts/random_agent.py --task=<TASK_NAME>
-            ```
+If successful, a `.python.env` file will be created in `.vscode` containing the Python paths needed for source indexing.
 
-### Set up IDE (Optional)
+## Extension Setup (Optional)
 
-To setup the IDE, please follow these instructions:
+An example UI extension is available at `source/SpiderBotTraining_1/SpiderBotTraining_1/ui_extension_example.py`.
 
-- Run VSCode Tasks, by pressing `Ctrl+Shift+P`, selecting `Tasks: Run Task` and running the `setup_python_env` in the drop down menu.
-  When running this task, you will be prompted to add the absolute path to your Isaac Sim installation.
+To enable it in Isaac Lab:
+1. Add the absolute path to the repository `source` folder in Isaac Lab’s extension search paths.
+2. Refresh the extension manager.
+3. Enable the extension under the `Third Party` category.
 
-If everything executes correctly, it should create a file .python.env in the `.vscode` directory.
-The file contains the python paths to all the extensions provided by Isaac Sim and Omniverse.
-This helps in indexing all the python modules for intelligent suggestions while writing code.
+## Results
 
-### Setup as Omniverse Extension (Optional)
+Use this section to summarize training metrics and experiment outcomes.
 
-We provide an example UI extension that will load upon enabling your extension defined in `source/SpiderBotTraining_1/SpiderBotTraining_1/ui_extension_example.py`.
+- Training reward curves
+- Episode success rates
+- Average episode length
+- Final evaluation performance
+- Notes on improvement over baseline or previous runs
 
-To enable your extension, follow these steps:
+Example result summary:
 
-1. **Add the search path of this project/repository** to the extension manager:
-    - Navigate to the extension manager using `Window` -> `Extensions`.
-    - Click on the **Hamburger Icon**, then go to `Settings`.
-    - In the `Extension Search Paths`, enter the absolute path to the `source` directory of this project/repository.
-    - If not already present, in the `Extension Search Paths`, enter the path that leads to Isaac Lab's extension directory directory (`IsaacLab/source`)
-    - Click on the **Hamburger Icon**, then click `Refresh`.
+- `Experiment 1`: reached stable walking behavior after 200k steps with an average episode reward of `X`
+- `Experiment 2`: reduced control effort by `Y%` while maintaining task success
+- `Experiment 3`: solved the navigation goal in `N` out of `M` evaluation episodes
 
-2. **Search and enable your extension**:
-    - Find your extension under the `Third Party` category.
-    - Toggle it to enable your extension.
+## Code Formatting
 
-## Code formatting
-
-We have a pre-commit template to automatically format your code.
-To install pre-commit:
+Install pre-commit and run formatting checks:
 
 ```bash
 pip install pre-commit
-```
-
-Then you can run pre-commit with:
-
-```bash
 pre-commit run --all-files
 ```
 
@@ -108,8 +157,7 @@ pre-commit run --all-files
 
 ### Pylance Missing Indexing of Extensions
 
-In some VsCode versions, the indexing of part of the extensions is missing.
-In this case, add the path to your extension in `.vscode/settings.json` under the key `"python.analysis.extraPaths"`.
+If VSCode does not index extension modules, add the repository path to `.vscode/settings.json` under `python.analysis.extraPaths`:
 
 ```json
 {
@@ -121,15 +169,13 @@ In this case, add the path to your extension in `.vscode/settings.json` under th
 
 ### Pylance Crash
 
-If you encounter a crash in `pylance`, it is probable that too many files are indexed and you run out of memory.
-A possible solution is to exclude some of omniverse packages that are not used in your project.
-To do so, modify `.vscode/settings.json` and comment out packages under the key `"python.analysis.extraPaths"`
-Some examples of packages that can likely be excluded are:
+If Pylance crashes due to too many files being indexed, reduce the extra paths in `.vscode/settings.json` and exclude non-essential Omniverse packages.
+
+Example exclusions:
 
 ```json
-"<path-to-isaac-sim>/extscache/omni.anim.*"         // Animation packages
-"<path-to-isaac-sim>/extscache/omni.kit.*"          // Kit UI tools
-"<path-to-isaac-sim>/extscache/omni.graph.*"        // Graph UI tools
-"<path-to-isaac-sim>/extscache/omni.services.*"     // Services tools
-...
+"<path-to-isaac-sim>/extscache/omni.anim.*"
+"<path-to-isaac-sim>/extscache/omni.kit.*"
+"<path-to-isaac-sim>/extscache/omni.graph.*"
+"<path-to-isaac-sim>/extscache/omni.services.*"
 ```
